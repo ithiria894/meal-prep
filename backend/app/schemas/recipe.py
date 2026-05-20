@@ -27,6 +27,14 @@ class RecipeStepCreate(BaseModel):
     duration_minutes: int | None = None
 
 
+class RecipeStepRead(BaseModel):
+    id: int
+    position: int
+    text: str
+    duration_minutes: int | None
+    model_config = {"from_attributes": True}
+
+
 class RecipeCreate(BaseModel):
     name: str
     source_url: str | None = None
@@ -34,7 +42,8 @@ class RecipeCreate(BaseModel):
     servings_text: str | None = None
     prep_time: int | None = None
     cook_time: int | None = None
-    freezable: bool = False
+    type: str = "main"
+    freeze_method: str | None = None
     freezer_shelf_life_days: int | None = None
     ingredients: list[RecipeIngredientCreate] = []
     steps: list[RecipeStepCreate] = []
@@ -50,8 +59,11 @@ class RecipeRead(BaseModel):
     servings_text: str | None
     prep_time: int | None
     cook_time: int | None
-    freezable: bool
-    freezer_shelf_life_days: int | None
+    type: str
+    freeze_method: str | None
+    freeze_shelf_life_days: int | None
+    freeze_notes: str | None
     is_builtin: bool
     ingredients: list[RecipeIngredientRead] = []
+    steps: list[RecipeStepRead] = []
     model_config = {"from_attributes": True}

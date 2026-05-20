@@ -29,8 +29,9 @@ def create_recipe(data: RecipeCreate, session: Session = Depends(get_session)):
         servings_text=data.servings_text,
         prep_time=data.prep_time,
         cook_time=data.cook_time,
-        freezable=data.freezable,
-        freezer_shelf_life_days=data.freezer_shelf_life_days,
+        type=getattr(data, 'type', 'main') or 'main',
+        freeze_method=getattr(data, 'freeze_method', None),
+        freeze_shelf_life_days=data.freezer_shelf_life_days,
     )
     session.add(recipe)
     session.flush()

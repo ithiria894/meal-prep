@@ -6,6 +6,7 @@ from .plan import MealPlan, MealPlanEntry, BatchCookPlan, BatchCookEntry
 from .shopping import ShoppingList, ShoppingListItem, ShoppingListItemSource
 from .store import Store, FoodPrice
 from .user_preferences import UserPreferences, DietaryTag
+from .budget import MonthlyBudget, Expense
 
 __all__ = [
     "Base",
