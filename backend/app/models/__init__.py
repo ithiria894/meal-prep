@@ -7,6 +7,8 @@ from .shopping import ShoppingList, ShoppingListItem, ShoppingListItemSource
 from .store import Store, FoodPrice
 from .user_preferences import UserPreferences, DietaryTag
 from .budget import MonthlyBudget, Expense
+from .favorites import FavoriteRecipe
+from .weekly_specials import WeeklySpecial
 
 __all__ = [
     "Base",
