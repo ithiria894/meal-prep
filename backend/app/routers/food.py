@@ -101,3 +101,29 @@ def create_tag(data: TagCreate, session: Session = Depends(get_session)):
 @router.get("/tags", response_model=list[TagRead])
 def list_tags(session: Session = Depends(get_session)):
     return session.query(Tag).order_by(Tag.type, Tag.name).all()
+
+
+@router.patch("/foods/{food_id}")
+def update_food(food_id: int, data: FoodCreate, session: Session = Depends(get_session)):
+    food = session.get(Food, food_id)
+    if not food:
+        raise HTTPException(404, "Food not found")
+    food.name = data.name
+    food.plural_name = data.plural_name
+    food.category_id = data.category_id
+    food.default_unit_id = data.default_unit_id
+    food.default_shelf_life_days = data.default_shelf_life_days
+    food.freezer_shelf_life_days = data.freezer_shelf_life_days
+    food.is_staple = data.is_staple
+    session.commit()
+    return food
+
+
+@router.delete("/foods/{food_id}")
+def delete_food(food_id: int, session: Session = Depends(get_session)):
+    food = session.get(Food, food_id)
+    if not food:
+        raise HTTPException(404, "Food not found")
+    session.delete(food)
+    session.commit()
+    return {"deleted": food_id}

@@ -143,3 +143,38 @@ def budget_summary(session: Session = Depends(get_session)):
         "by_category": by_category,
         "over_budget": budget.remaining < 0,
     }
+
+
+@router.delete("/budgets/expenses/{expense_id}")
+def delete_expense(expense_id: int, session: Session = Depends(get_session)):
+    expense = session.get(Expense, expense_id)
+    if not expense:
+        raise HTTPException(404, "Expense not found")
+    session.delete(expense)
+    session.commit()
+    return {"deleted": expense_id}
+
+
+@router.patch("/budgets/{year}/{month}")
+def update_budget_limit(year: int, month: int, budget_limit: float, session: Session = Depends(get_session)):
+    budget = session.query(MonthlyBudget).filter(
+        MonthlyBudget.year == year, MonthlyBudget.month == month
+    ).first()
+    if not budget:
+        raise HTTPException(404, "Budget not found")
+    budget.budget_limit = budget_limit
+    session.commit()
+    return {"updated": f"{year}-{month:02d}", "new_limit": budget_limit}
+
+
+@router.delete("/budgets/reset/{year}/{month}")
+def reset_budget(year: int, month: int, session: Session = Depends(get_session)):
+    budget = session.query(MonthlyBudget).filter(
+        MonthlyBudget.year == year, MonthlyBudget.month == month
+    ).first()
+    if not budget:
+        raise HTTPException(404, "Budget not found")
+    for e in budget.expenses:
+        session.delete(e)
+    session.commit()
+    return {"reset": f"{year}-{month:02d}", "expenses_deleted": True}

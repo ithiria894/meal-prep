@@ -93,3 +93,27 @@ def consume_portion(portion_id: int, count: int = 1, session: Session = Depends(
     session.refresh(portion)
     log.info("Consumed %d cube(s) of %s (%d remaining)", count, portion.recipe_name, portion.remaining)
     return {"remaining": portion.remaining}
+
+
+@router.patch("/stock/{entry_id}")
+def update_stock(entry_id: int, amount: float | None = None, best_before_date: str | None = None, session: Session = Depends(get_session)):
+    entry = session.get(StockEntry, entry_id)
+    if not entry:
+        raise HTTPException(404, "Stock entry not found")
+    if amount is not None:
+        entry.amount = amount
+    if best_before_date:
+        from datetime import date as d
+        entry.best_before_date = d.fromisoformat(best_before_date)
+    session.commit()
+    return {"updated": entry_id}
+
+
+@router.delete("/stock/{entry_id}")
+def delete_stock(entry_id: int, session: Session = Depends(get_session)):
+    entry = session.get(StockEntry, entry_id)
+    if not entry:
+        raise HTTPException(404, "Stock entry not found")
+    session.delete(entry)
+    session.commit()
+    return {"deleted": entry_id}
