@@ -1,0 +1,8 @@
+{
+  "expiring_ingredient_bonus": 10,
+  "pantry_ingredient_bonus": 5,
+  "new_ingredient_penalty": -3,
+  "recent_cook_penalty": -2,
+  "recent_cook_days": 3,
+  "freezable_multiplier": 1.5
+}

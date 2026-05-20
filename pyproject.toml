@@ -1,0 +1,35 @@
+[project]
+name = "meal-prep"
+version = "0.1.0"
+description = "DIY HelloFresh - batch cook meal prep planner with freezer portion tracking"
+requires-python = ">=3.11"
+dependencies = [
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "click>=8.1",
+    "rich>=13.0",
+    "pydantic>=2.0",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
+import = [
+    "recipe-scrapers>=15.0",
+    "yt-dlp>=2024.0",
+    "litellm>=1.0",
+]
+
+[project.scripts]
+meal-prep = "app.cli:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]

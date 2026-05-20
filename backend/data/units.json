@@ -1,0 +1,14 @@
+{
+  "conversions": [
+    {"from": "g", "to": "kg", "factor": 0.001},
+    {"from": "g", "to": "oz", "factor": 0.035274},
+    {"from": "kg", "to": "lb", "factor": 2.20462},
+    {"from": "ml", "to": "l", "factor": 0.001},
+    {"from": "ml", "to": "tsp", "factor": 0.202884},
+    {"from": "ml", "to": "tbsp", "factor": 0.067628},
+    {"from": "ml", "to": "cup", "factor": 0.004227},
+    {"from": "ml", "to": "fl_oz", "factor": 0.033814},
+    {"from": "tsp", "to": "tbsp", "factor": 0.333333},
+    {"from": "tbsp", "to": "cup", "factor": 0.0625}
+  ]
+}
