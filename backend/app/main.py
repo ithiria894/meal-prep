@@ -2,7 +2,7 @@ import logging
 from fastapi import FastAPI
 
 from app.db import init_db
-from app.routers import food, recipe, stock, plan, shopping, store, image_import, budget, planner
+from app.routers import food, recipe, stock, plan, shopping, store, image_import, budget, planner, cook
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
@@ -21,6 +21,7 @@ app.include_router(store.router)
 app.include_router(image_import.router)
 app.include_router(budget.router)
 app.include_router(planner.router)
+app.include_router(cook.router)
 
 
 @app.on_event("startup")
