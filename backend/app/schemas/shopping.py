@@ -31,3 +31,17 @@ class ShoppingListRead(BaseModel):
 
 class CheckItemRequest(BaseModel):
     checked: bool = True
+
+
+class ShoppingListCreate(BaseModel):
+    status: str = "draft"
+
+
+class ShoppingListItemCreate(BaseModel):
+    food_id: int | None = None
+    unit_id: int | None = None
+    quantity: float = 1
+    category_id: int | None = None
+    estimated_cost: float | None = None
+    store_id: int | None = None
+    note: str | None = None
