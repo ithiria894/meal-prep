@@ -33,9 +33,10 @@ def log_cook(data: CookLogCreate, session: Session = Depends(get_session)):
 
     recipe_servings = recipe.servings or 1
     scale = servings_cooked / recipe_servings
+    cooked_at_ts = data.cooked_at or datetime.now(timezone.utc)
 
-    log.info("cook-log: recipe=%d (%s) servings=%d scale=%.3f ingredients=%d",
-             recipe.id, recipe.name, servings_cooked, scale, len(recipe.ingredients))
+    log.info("cook-log: recipe=%d (%s) servings=%d scale=%.3f ingredients=%d cooked_at=%s",
+             recipe.id, recipe.name, servings_cooked, scale, len(recipe.ingredients), cooked_at_ts.isoformat())
 
     consumed_results: list[ConsumedItem] = []
     for ing in recipe.ingredients:
@@ -49,6 +50,7 @@ def log_cook(data: CookLogCreate, session: Session = Depends(get_session)):
             amount_needed=needed,
             unit_id=ing.unit_id,
             recipe_id=recipe.id,
+            cooked_at=cooked_at_ts,
         )
         food = session.get(Food, ing.food_id)
         consumed_results.append(ConsumedItem(
@@ -87,7 +89,7 @@ def log_cook(data: CookLogCreate, session: Session = Depends(get_session)):
         scale_factor=scale,
         consumed=consumed_results,
         favorite_weight=fav_weight,
-        cooked_at=datetime.now(timezone.utc),
+        cooked_at=cooked_at_ts,
     )
 
 

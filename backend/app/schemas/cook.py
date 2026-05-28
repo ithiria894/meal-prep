@@ -7,6 +7,7 @@ class CookLogCreate(BaseModel):
     servings_cooked: int | None = None
     bump_favorite: bool = True
     notes: str | None = None
+    cooked_at: datetime | None = None
 
 
 class ConsumedItem(BaseModel):

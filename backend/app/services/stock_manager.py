@@ -5,7 +5,7 @@ Based on Grocy's stock batch model.
 
 import logging
 import uuid
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from sqlalchemy.orm import Session
 
 from app.models.food import Food
@@ -67,6 +67,7 @@ def consume_fifo(
     amount_needed: float,
     unit_id: int | None = None,
     recipe_id: int | None = None,
+    cooked_at: datetime | None = None,
 ) -> float:
     entries = (
         session.query(StockEntry)
@@ -104,6 +105,8 @@ def consume_fifo(
         transaction_type="consume",
         related_recipe_id=recipe_id,
     )
+    if cooked_at is not None:
+        log_entry.created_at = cooked_at
     session.add(log_entry)
 
     if remaining > 0:
@@ -114,6 +117,8 @@ def consume_fifo(
             transaction_type="deficit",
             related_recipe_id=recipe_id,
         )
+        if cooked_at is not None:
+            deficit_log.created_at = cooked_at
         session.add(deficit_log)
         log.warning("Stock deficit: food=%d, short by %.1f", food_id, remaining)
 
