@@ -75,6 +75,11 @@ def generate_shopping_list(session: Session, meal_plan_id: int) -> ShoppingList:
             log.info("  SKIP staple: %s", food.name)
             continue
 
+        # V3: skip foods marked "quick-have" (user said "我有呢樣")
+        if _has_quick_have(session, food_id):
+            log.info("  SKIP quick-have: %s", food.name)
+            continue
+
         total_needed = data["quantity"]
         pantry_available = _get_pantry_stock(session, food_id, unit_id)
         pantry_deducted = min(pantry_available, total_needed)
@@ -120,6 +125,18 @@ def _add_recipe_ingredients(aggregated, recipe, scale):
             "recipe_id": recipe.id,
             "quantity": scaled_qty,
         })
+
+
+def _has_quick_have(session: Session, food_id: int) -> bool:
+    return (
+        session.query(StockEntry)
+        .filter(
+            StockEntry.food_id == food_id,
+            StockEntry.is_quick_have == True,  # noqa: E712
+            StockEntry.is_exhausted == False,  # noqa: E712
+        )
+        .first()
+    ) is not None
 
 
 def _get_pantry_stock(session: Session, food_id: int, unit_id: int | None) -> float:

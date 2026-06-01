@@ -1,5 +1,5 @@
 from .base import Base
-from .food import Food, FoodAlias, Unit, UnitAlias, FoodCategory, Tag, RecipeTag
+from .food import Food, FoodAlias, Unit, UnitAlias, FoodCategory, Tag, RecipeTag, FoodSubstitution
 from .recipe import Recipe, RecipeComponent, RecipeIngredient, RecipeStep
 from .stock import Location, StockEntry, StockLog, FreezerPortion
 from .plan import MealPlan, MealPlanEntry, BatchCookPlan, BatchCookEntry
@@ -12,7 +12,7 @@ from .weekly_specials import WeeklySpecial
 
 __all__ = [
     "Base",
-    "Food", "FoodAlias", "Unit", "UnitAlias", "FoodCategory", "Tag", "RecipeTag",
+    "Food", "FoodAlias", "Unit", "UnitAlias", "FoodCategory", "Tag", "RecipeTag", "FoodSubstitution",
     "Recipe", "RecipeComponent", "RecipeIngredient", "RecipeStep",
     "Location", "StockEntry", "StockLog", "FreezerPortion",
     "MealPlan", "MealPlanEntry", "BatchCookPlan", "BatchCookEntry",

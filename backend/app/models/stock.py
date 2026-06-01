@@ -21,8 +21,8 @@ class StockEntry(Base):
     __tablename__ = "stock_entries"
 
     food_id: Mapped[int] = mapped_column(ForeignKey("foods.id"), nullable=False)
-    location_id: Mapped[int] = mapped_column(ForeignKey("locations.id"), nullable=False)
-    amount: Mapped[float] = mapped_column(Float, nullable=False)
+    location_id: Mapped[int | None] = mapped_column(ForeignKey("locations.id"))
+    amount: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     unit_id: Mapped[int | None] = mapped_column(ForeignKey("units.id"))
     best_before_date: Mapped[date | None] = mapped_column(Date)
     purchased_date: Mapped[date | None] = mapped_column(Date)
@@ -30,6 +30,7 @@ class StockEntry(Base):
     store_id: Mapped[int | None] = mapped_column(ForeignKey("stores.id"))
     batch_id: Mapped[str | None] = mapped_column(String)
     is_exhausted: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_quick_have: Mapped[bool] = mapped_column(Boolean, default=False)
 
     food: Mapped["Food"] = relationship("Food")
     location: Mapped[Location] = relationship("Location")

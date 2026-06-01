@@ -3,7 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db import get_session
+from app.models.food import Food
 from app.models.shopping import ShoppingList, ShoppingListItem
+from app.models.store import Store
 from app.schemas.shopping import (
     CheckItemRequest,
     ShoppingListCreate,
@@ -75,6 +77,33 @@ def get_shopping_list(list_id: int, session: Session = Depends(get_session)):
     if not sl:
         raise HTTPException(404, "Shopping list not found")
     return sl
+
+
+@router.get("/shopping-lists/{list_id}/by-store")
+def get_shopping_list_by_store(list_id: int, session: Session = Depends(get_session)):
+    """Group shopping list items by preferred store (T&T / Walmart / 未分類)."""
+    sl = session.get(ShoppingList, list_id)
+    if not sl:
+        raise HTTPException(404, "Shopping list not found")
+    grouped: dict[str, list] = {}
+    for item in sl.items:
+        store_name = "未分類"
+        if item.food_id:
+            food = session.get(Food, item.food_id)
+            if food and food.preferred_store_id:
+                store = session.get(Store, food.preferred_store_id)
+                if store:
+                    store_name = store.name
+        grouped.setdefault(store_name, []).append({
+            "id": item.id,
+            "food_id": item.food_id,
+            "quantity": item.quantity,
+            "unit_id": item.unit_id,
+            "checked": item.checked,
+            "estimated_cost": item.estimated_cost,
+        })
+    log.info("Shopping list %d grouped into %d stores", list_id, len(grouped))
+    return grouped
 
 
 @router.patch("/shopping-lists/items/{item_id}/check")

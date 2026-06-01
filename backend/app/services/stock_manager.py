@@ -8,10 +8,22 @@ import uuid
 from datetime import date, datetime, timedelta
 from sqlalchemy.orm import Session
 
-from app.models.food import Food
+from app.models.food import Food, Unit
 from app.models.stock import FreezerPortion, Location, StockEntry, StockLog
+from app.services.unit_converter import convert
 
 log = logging.getLogger(__name__)
+
+
+def _unit_name(session: Session, unit_id: int | None) -> str | None:
+    """Resolve a unit_id to its canonical name (for the conversion graph)."""
+    if unit_id is None:
+        return None
+    unit = session.get(Unit, unit_id)
+    if unit is None:
+        return None
+    # prefer abbreviation (g/kg/ml…) since the conversion graph keys on those
+    return unit.abbreviation or unit.name
 
 
 def stock_in(
@@ -79,24 +91,53 @@ def consume_fifo(
         .all()
     )
 
-    remaining = amount_needed
-    consumed = 0.0
+    # `amount_needed` is expressed in `unit_id`. Each stock batch may be stored
+    # in a different unit, so we track the running shortfall in the REQUESTED
+    # unit, and convert each batch's available amount into that unit before
+    # taking from it. This stops the old bug where "need 200 g" silently ate a
+    # whole "1 pack" batch as if 1 == 200.
+    needed_unit = _unit_name(session, unit_id)
+
+    remaining = amount_needed  # in requested unit
+    consumed = 0.0  # in requested unit
 
     for entry in entries:
         if remaining <= 0:
             break
 
-        # TODO: unit conversion if entry.unit_id != unit_id
-        take = min(entry.amount, remaining)
-        entry.amount -= take
-        remaining -= take
-        consumed += take
+        entry_unit = _unit_name(session, entry.unit_id)
+        # How much this batch holds, expressed in the requested unit.
+        if needed_unit and entry_unit and entry_unit != needed_unit:
+            avail_in_needed = convert(entry.amount, entry_unit, needed_unit)
+            if avail_in_needed is None:
+                # No conversion path — skip this batch rather than corrupt counts.
+                log.warning(
+                    "  FIFO skip batch=%s: cannot convert %s → %s",
+                    entry.batch_id, entry_unit, needed_unit,
+                )
+                continue
+        else:
+            avail_in_needed = entry.amount
 
-        if entry.amount <= 0:
+        if avail_in_needed <= 0:
+            continue
+
+        take_in_needed = min(avail_in_needed, remaining)
+        # Convert the taken amount back to the batch's own unit to deduct it.
+        ratio = take_in_needed / avail_in_needed  # fraction of this batch used
+        take_in_entry = entry.amount * ratio
+
+        entry.amount -= take_in_entry
+        remaining -= take_in_needed
+        consumed += take_in_needed
+
+        if entry.amount <= 1e-9:
+            entry.amount = 0.0
             entry.is_exhausted = True
 
-        log.info("  FIFO consume: batch=%s, took=%.1f, remaining_in_batch=%.1f",
-                 entry.batch_id, take, entry.amount)
+        log.info("  FIFO consume: batch=%s, took=%.3f %s (=%.3f %s), remaining_in_batch=%.3f",
+                 entry.batch_id, take_in_needed, needed_unit or "?",
+                 take_in_entry, entry_unit or "?", entry.amount)
 
     log_entry = StockLog(
         food_id=food_id,

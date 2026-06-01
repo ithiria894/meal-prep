@@ -7,7 +7,7 @@ from app.models.stock import FreezerPortion, Location, StockEntry
 from app.schemas.stock import (
     ConsumeRequest, FreezerPortionRead,
     LocationCreate, LocationRead,
-    StockEntryRead, StockInRequest,
+    QuickHaveRequest, StockEntryRead, StockInRequest,
 )
 from app.services.stock_manager import (
     consume_fifo, create_freezer_portions, get_expiring_soon, stock_in,
@@ -43,6 +43,25 @@ def add_stock(data: StockInRequest, session: Session = Depends(get_session)):
         price=data.price,
         store_id=data.store_id,
     )
+    return entry
+
+
+@router.post("/stock/quick-have", response_model=StockEntryRead)
+def quick_have(data: QuickHaveRequest, session: Session = Depends(get_session)):
+    """Mark a food as 'I have this' without specifying amount/location/expiry."""
+    existing = (
+        session.query(StockEntry)
+        .filter(StockEntry.food_id == data.food_id, StockEntry.is_quick_have == True, StockEntry.is_exhausted == False)  # noqa: E712
+        .first()
+    )
+    if existing:
+        log.info("Food %d already marked as quick-have", data.food_id)
+        return existing
+    entry = StockEntry(food_id=data.food_id, is_quick_have=True)
+    session.add(entry)
+    session.commit()
+    session.refresh(entry)
+    log.info("Quick-have: food %d marked as available", data.food_id)
     return entry
 
 

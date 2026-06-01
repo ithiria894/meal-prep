@@ -29,9 +29,15 @@ class Food(Base):
     freezer_shelf_life_days: Mapped[int | None] = mapped_column(Integer)
     is_staple: Mapped[bool] = mapped_column(Boolean, default=False)
     is_prepackaged_frozen: Mapped[bool] = mapped_column(Boolean, default=False)
+    # V3: 常溫長放（罐頭、乾貨、醬料）→ 可一次買多啲囤；否則買 2-3 日份
+    is_shelf_stable: Mapped[bool] = mapped_column(Boolean, default=False)
+    # V3: 建議去邊間鋪買（亞洲嘢 T&T / 西式平貨 Walmart）
+    preferred_store_id: Mapped[int | None] = mapped_column(ForeignKey("stores.id"))
+    store_reason: Mapped[str | None] = mapped_column(String)
 
     category: Mapped[FoodCategory | None] = relationship("FoodCategory", back_populates="foods")
     default_unit: Mapped[Unit | None] = relationship("Unit", foreign_keys=[default_unit_id])
+    preferred_store: Mapped["Store | None"] = relationship("Store", foreign_keys=[preferred_store_id])
     aliases: Mapped[list[FoodAlias]] = relationship("FoodAlias", back_populates="food", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
@@ -94,3 +100,16 @@ recipe_tags = Table(
 )
 
 RecipeTag = recipe_tags
+
+
+class FoodSubstitution(Base):
+    """XO醬代蒜蓉+小米辣：一個 food 可以被另一個代替。"""
+    __tablename__ = "food_substitutions"
+
+    food_id: Mapped[int] = mapped_column(ForeignKey("foods.id"), nullable=False)
+    substitute_food_id: Mapped[int] = mapped_column(ForeignKey("foods.id"), nullable=False)
+    ratio: Mapped[float] = mapped_column(Float, default=1.0)
+    note: Mapped[str | None] = mapped_column(String)
+
+    food: Mapped[Food] = relationship("Food", foreign_keys=[food_id])
+    substitute: Mapped[Food] = relationship("Food", foreign_keys=[substitute_food_id])

@@ -34,6 +34,7 @@ class MealPlanEntry(Base):
     recipe_id: Mapped[int | None] = mapped_column(ForeignKey("recipes.id"))
     freezer_portion_id: Mapped[int | None] = mapped_column(ForeignKey("freezer_portions.id"))
     is_eating_out: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_batch_cook: Mapped[bool] = mapped_column(Boolean, default=True)
     servings_wanted: Mapped[int | None] = mapped_column(Integer)
 
     meal_plan: Mapped[MealPlan] = relationship("MealPlan", back_populates="entries")

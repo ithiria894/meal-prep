@@ -24,10 +24,14 @@ class StockInRequest(BaseModel):
     store_id: int | None = None
 
 
+class QuickHaveRequest(BaseModel):
+    food_id: int
+
+
 class StockEntryRead(BaseModel):
     id: int
     food_id: int
-    location_id: int
+    location_id: int | None
     amount: float
     unit_id: int | None
     best_before_date: date | None
@@ -36,6 +40,7 @@ class StockEntryRead(BaseModel):
     store_id: int | None
     batch_id: str | None
     is_exhausted: bool
+    is_quick_have: bool = False
     model_config = {"from_attributes": True}
 
 

@@ -22,6 +22,7 @@ class UserPreferences(Base):
     max_same_dish_per_week: Mapped[int] = mapped_column(Integer, default=3)
     cooking_skill_level: Mapped[str] = mapped_column(String, default="beginner")
     default_batch_cook_day: Mapped[str] = mapped_column(String, default="saturday")
+    max_spice_level: Mapped[int] = mapped_column(Integer, default=1)
 
     disliked_foods: Mapped[list["Food"]] = relationship("Food", secondary=disliked_foods_table)
     dietary_tags: Mapped[list[DietaryTag]] = relationship(

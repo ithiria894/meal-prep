@@ -23,6 +23,7 @@ class Recipe(Base):
     freeze_shelf_life_days: Mapped[int | None] = mapped_column(Integer)
     freeze_notes: Mapped[str | None] = mapped_column(String)
     is_builtin: Mapped[bool] = mapped_column(Boolean, default=False)
+    spice_level: Mapped[int] = mapped_column(Integer, default=0)
 
     components: Mapped[list[RecipeComponent]] = relationship(
         "RecipeComponent",
