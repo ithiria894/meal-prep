@@ -1,0 +1,19 @@
+Metadata-Version: 2.4
+Name: meal-prep
+Version: 0.1.0
+Summary: DIY HelloFresh - batch cook meal prep planner with freezer portion tracking
+Requires-Python: >=3.11
+Requires-Dist: sqlalchemy>=2.0
+Requires-Dist: alembic>=1.13
+Requires-Dist: click>=8.1
+Requires-Dist: rich>=13.0
+Requires-Dist: pydantic>=2.0
+Requires-Dist: fastapi>=0.115
+Requires-Dist: uvicorn>=0.30
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: pytest-cov>=5.0; extra == "dev"
+Provides-Extra: import
+Requires-Dist: recipe-scrapers>=15.0; extra == "import"
+Requires-Dist: yt-dlp>=2024.0; extra == "import"
+Requires-Dist: litellm>=1.0; extra == "import"
